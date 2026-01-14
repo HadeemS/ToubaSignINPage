@@ -1,7 +1,7 @@
 // Web3Forms Configuration
 // IMPORTANT: Replace 'YOUR_ACCESS_KEY' with your actual Web3Forms access key
 // Get your free access key from: https://web3forms.com
-const WEB3FORMS_ACCESS_KEY = 'YOUR_ACCESS_KEY';
+const WEB3FORMS_ACCESS_KEY = 'b403d4b5-f471-4cbd-8114-0643291aa449';
 
 // Form elements
 const form = document.getElementById('signInForm');
