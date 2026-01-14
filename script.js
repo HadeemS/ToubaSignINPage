@@ -194,7 +194,19 @@ async function handleFormSubmit(event) {
             body: JSON.stringify(web3formsData)
         });
 
+        // Check if response is ok
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Web3Forms API Error:', response.status, errorText);
+            throw new Error(`API Error: ${response.status} - ${errorText}`);
+        }
+
         const result = await response.json();
+        
+        // Log the full response for debugging
+        console.log('Web3Forms Response:', result);
+        console.log('Response Status:', response.status);
+        console.log('Submitted Data:', web3formsData);
 
         if (result.success) {
             // Show success message
@@ -203,22 +215,43 @@ async function handleFormSubmit(event) {
             // Track successful submission
             trackEvent('form_submission', 'success');
             
-            // Reset form after 3 seconds
+            // Reset form after 5 seconds
             setTimeout(() => {
                 form.reset();
                 successMessage.classList.remove('show');
+                form.style.display = 'block';
             }, 5000);
         } else {
-            throw new Error(result.message || 'Submission failed');
+            // Web3Forms returned an error
+            const errorMsg = result.message || result.error || 'Submission failed';
+            console.error('Web3Forms Error:', errorMsg, result);
+            throw new Error(errorMsg);
         }
     } catch (error) {
         console.error('Form submission error:', error);
+        console.error('Error details:', {
+            message: error.message,
+            stack: error.stack,
+            formData: formData
+        });
         
-        // Show error to user
-        alert('Sorry, there was an error submitting your information. Please try again or contact us directly.');
+        // Show more helpful error message
+        let errorMessage = 'Sorry, there was an error submitting your information.';
+        
+        if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+            errorMessage = 'Network error: Please check your internet connection and try again.';
+        } else if (error.message.includes('API Error: 400')) {
+            errorMessage = 'Invalid form data. Please check your information and try again.';
+        } else if (error.message.includes('API Error: 401') || error.message.includes('API Error: 403')) {
+            errorMessage = 'Authentication error. Please contact the salon administrator.';
+        } else if (error.message.includes('API Error: 429')) {
+            errorMessage = 'Too many requests. Please wait a moment and try again.';
+        }
+        
+        alert(errorMessage + '\n\nIf the problem persists, please contact us directly.');
         
         // Track error
-        trackEvent('form_submission', 'error');
+        trackEvent('form_submission', 'error', error.message);
     } finally {
         // Remove loading state
         setLoadingState(false);
