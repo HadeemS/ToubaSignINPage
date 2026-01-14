@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Sign in to Touba African Hair Braiding - Quick and easy client check-in">
+    <title>Touba African Hair Braiding - Client Sign-In</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="background-animation"></div>
+    <div class="container">
+        <div class="sign-in-card">
+            <div class="header">
+                <div class="logo">
+                    <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="30" cy="30" r="28" stroke="currentColor" stroke-width="2" fill="none"/>
+                        <path d="M20 25 Q30 20 40 25" stroke="currentColor" stroke-width="2" fill="none"/>
+                        <path d="M18 35 Q30 30 42 35" stroke="currentColor" stroke-width="2" fill="none"/>
+                        <path d="M16 45 Q30 40 44 45" stroke="currentColor" stroke-width="2" fill="none"/>
+                    </svg>
+                </div>
+                <h1>Touba African Hair Braiding</h1>
+                <p class="subtitle">Welcome! Please sign in below</p>
+            </div>
+
+            <form id="signInForm" class="sign-in-form">
+                <div class="form-group">
+                    <label for="name">Full Name *</label>
+                    <input 
+                        type="text" 
+                        id="name" 
+                        name="name" 
+                        placeholder="Enter your full name"
+                        required
+                        autocomplete="name"
+                    >
+                    <span class="error-message" id="nameError"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email Address *</label>
+                    <input 
+                        type="email" 
+                        id="email" 
+                        name="email" 
+                        placeholder="your.email@example.com"
+                        required
+                        autocomplete="email"
+                    >
+                    <span class="error-message" id="emailError"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="phone">Phone Number *</label>
+                    <input 
+                        type="tel" 
+                        id="phone" 
+                        name="phone" 
+                        placeholder="(555) 123-4567"
+                        required
+                        autocomplete="tel"
+                    >
+                    <span class="error-message" id="phoneError"></span>
+                </div>
+
+                <button type="submit" class="submit-btn" id="submitBtn">
+                    <span class="btn-text">Sign In</span>
+                    <span class="btn-loader" id="btnLoader"></span>
+                </button>
+            </form>
+
+            <div class="success-message" id="successMessage">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M20 6L9 17l-5-5"/>
+                </svg>
+                <p>Thank you! You've been signed in successfully.</p>
+            </div>
+
+            <div class="qr-section">
+                <button class="qr-toggle" id="qrToggle">Show QR Code</button>
+                <div class="qr-container" id="qrContainer">
+                    <p class="qr-label">Scan to access this page</p>
+                    <div id="qrcode"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>&copy; 2024 Touba African Hair Braiding. All rights reserved.</p>
+        </div>
+    </div>
+
+    <!-- QR Code Library -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
+
