@@ -230,7 +230,10 @@ body {
     color: var(--text-color);
 }
 
-.form-group input {
+.form-group input[type="text"],
+.form-group input[type="email"],
+.form-group input[type="tel"],
+.form-group input[type="date"] {
     width: 100%;
     padding: 14px 16px;
     border: 2px solid var(--border-color);
@@ -250,6 +253,10 @@ body {
 
 .form-group input::placeholder {
     color: #999;
+}
+
+.form-group input[type="date"] {
+    cursor: pointer;
 }
 
 .error-message {
@@ -335,6 +342,7 @@ body {
 
 .success-message.show {
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: 10px;
@@ -347,6 +355,11 @@ body {
 .success-message p {
     margin: 0;
     font-weight: 500;
+}
+
+.success-message small {
+    font-size: 12px;
+    font-weight: 400;
 }
 
 @keyframes fadeIn {
@@ -453,12 +466,10 @@ body {
         padding-top: 50px;
     }
 
-    .logo {
-        width: 70px;
-        height: 70px;
-    }
-
-    .form-group input {
+    .form-group input[type="text"],
+    .form-group input[type="email"],
+    .form-group input[type="tel"],
+    .form-group input[type="date"] {
         padding: 12px 14px;
         font-size: 16; /* Prevents zoom on iOS */
     }
@@ -573,4 +584,3 @@ body {
         transform: scale(1.3) rotate(180deg);
     }
 }
-

@@ -74,6 +74,25 @@ function validateField(event) {
             // Format phone number
             formatPhoneNumber(field);
             break;
+
+        case 'service':
+            if (fieldValue.length < 2) {
+                showError(errorElement, 'Please describe the service you need');
+                return false;
+            }
+            break;
+
+        case 'birthday':
+            // Optional field, but validate format if provided
+            if (fieldValue) {
+                const date = new Date(fieldValue);
+                const today = new Date();
+                if (date > today) {
+                    showError(errorElement, 'Birthday cannot be in the future');
+                    return false;
+                }
+            }
+            break;
     }
 
     return true;
@@ -125,6 +144,7 @@ function validateForm() {
     const name = document.getElementById('name').value.trim();
     const email = document.getElementById('email').value.trim();
     const phone = document.getElementById('phone').value.trim();
+    const service = document.getElementById('service').value.trim();
 
     let isValid = true;
 
@@ -148,6 +168,12 @@ function validateForm() {
         isValid = false;
     }
 
+    // Validate service
+    if (service.length < 2) {
+        showError(document.getElementById('serviceError'), 'Please describe the service you need');
+        isValid = false;
+    }
+
     return isValid;
 }
 
@@ -168,19 +194,36 @@ async function handleFormSubmit(event) {
         name: document.getElementById('name').value.trim(),
         email: document.getElementById('email').value.trim(),
         phone: document.getElementById('phone').value.trim(),
+        service: document.getElementById('service').value.trim(),
+        birthday: document.getElementById('birthday').value || null,
         timestamp: new Date().toISOString(),
         page: window.location.href
     };
 
+    // Format birthday for display
+    let birthdayDisplay = 'Not provided';
+    if (formData.birthday) {
+        const birthdayDate = new Date(formData.birthday);
+        birthdayDisplay = birthdayDate.toLocaleDateString('en-US', { 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric' 
+        });
+    }
+
     // Prepare data for Web3Forms
     const web3formsData = {
         access_key: WEB3FORMS_ACCESS_KEY,
-        subject: `New Client Sign-In: ${formData.name}`,
+        subject: `New Client Sign-In: ${formData.name} - ${formData.service}`,
         name: formData.name,
         email: formData.email,
         phone: formData.phone,
-        message: `Client Sign-In Details:\n\nName: ${formData.name}\nEmail: ${formData.email}\nPhone: ${formData.phone}\nTimestamp: ${formData.timestamp}\nPage: ${formData.page}`,
-        from_name: formData.name
+        message: `Client Sign-In Details:\n\nName: ${formData.name}\nEmail: ${formData.email}\nPhone: ${formData.phone}\nService Requested: ${formData.service}\nBirthday: ${birthdayDisplay}\nTimestamp: ${formData.timestamp}\nPage: ${formData.page}`,
+        from_name: formData.name,
+        // Enable auto-reply confirmation email
+        auto_reply: true,
+        auto_reply_subject: 'Thank you for signing in at Touba Hair Braiding!',
+        auto_reply_message: `Hello ${formData.name},\n\nThank you for signing in at Touba Hair Braiding!\n\nWe've received your information:\n- Service Requested: ${formData.service}\n- Phone: ${formData.phone}${formData.birthday ? '\n- Birthday: ' + birthdayDisplay : ''}\n\nWe'll be in touch soon to confirm your appointment.\n\nBest regards,\nTouba Hair Braiding\nColumbia SC`
     };
 
     try {
@@ -209,8 +252,8 @@ async function handleFormSubmit(event) {
         console.log('Submitted Data:', web3formsData);
 
         if (result.success) {
-            // Show success message
-            showSuccessMessage();
+            // Show success message with confirmation info
+            showSuccessMessage(formData.email, formData.phone);
             
             // Track successful submission
             trackEvent('form_submission', 'success');
@@ -269,8 +312,11 @@ function setLoadingState(loading) {
     }
 }
 
-// Show success message
-function showSuccessMessage() {
+// Show success message with confirmation info
+function showSuccessMessage(email, phone) {
+    const messageText = successMessage.querySelector('p');
+    messageText.innerHTML = `Thank you! You've been signed in successfully.<br><small style="display:block;margin-top:8px;opacity:0.8;">A confirmation email has been sent to ${email}</small>`;
+    
     successMessage.classList.add('show');
     form.style.display = 'none';
     
@@ -408,4 +454,3 @@ window.exportAnalytics = function() {
 if (WEB3FORMS_ACCESS_KEY === 'YOUR_ACCESS_KEY') {
     console.warn('⚠️ Web3Forms access key not configured! Please update script.js with your access key from https://web3forms.com');
 }
-
