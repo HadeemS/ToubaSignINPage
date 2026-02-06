@@ -190,13 +190,16 @@ async function handleFormSubmit(event) {
     setLoadingState(true);
 
     // Get form data
+    const easternTime = getEasternTime();
     const formData = {
         name: document.getElementById('name').value.trim(),
         email: document.getElementById('email').value.trim(),
         phone: document.getElementById('phone').value.trim(),
         service: document.getElementById('service').value.trim(),
         birthday: document.getElementById('birthday').value || null,
-        timestamp: new Date().toISOString(),
+        timestamp: easternTime.formatted,
+        timestampISO: easternTime.iso,
+        timezone: easternTime.timezone,
         page: window.location.href
     };
 
@@ -211,6 +214,21 @@ async function handleFormSubmit(event) {
         });
     }
 
+    // Prepare confirmation email message
+    const confirmationMessage = `Hello ${formData.name},
+
+Thank you for signing in at Touba Hair Braiding!
+
+We've received your information:
+- Service Requested: ${formData.service}
+- Phone: ${formData.phone}${formData.birthday ? '\n- Birthday: ' + birthdayDisplay : ''}
+
+We'll be in touch soon to confirm your appointment.
+
+Best regards,
+Touba Hair Braiding
+Columbia SC`;
+
     // Prepare data for Web3Forms
     const web3formsData = {
         access_key: WEB3FORMS_ACCESS_KEY,
@@ -218,12 +236,16 @@ async function handleFormSubmit(event) {
         name: formData.name,
         email: formData.email,
         phone: formData.phone,
-        message: `Client Sign-In Details:\n\nName: ${formData.name}\nEmail: ${formData.email}\nPhone: ${formData.phone}\nService Requested: ${formData.service}\nBirthday: ${birthdayDisplay}\nTimestamp: ${formData.timestamp}\nPage: ${formData.page}`,
+        message: `Client Sign-In Details:\n\nName: ${formData.name}\nEmail: ${formData.email}\nPhone: ${formData.phone}\nService Requested: ${formData.service}\nBirthday: ${birthdayDisplay}\nTimestamp: ${formData.timestamp} (${formData.timezone})\nPage: ${formData.page}`,
         from_name: formData.name,
         // Enable auto-reply confirmation email
+        // Note: Auto-reply must be enabled in Web3Forms dashboard
+        // Go to https://web3forms.com and enable "Auto Reply" in your access key settings
         auto_reply: true,
         auto_reply_subject: 'Thank you for signing in at Touba Hair Braiding!',
-        auto_reply_message: `Hello ${formData.name},\n\nThank you for signing in at Touba Hair Braiding!\n\nWe've received your information:\n- Service Requested: ${formData.service}\n- Phone: ${formData.phone}${formData.birthday ? '\n- Birthday: ' + birthdayDisplay : ''}\n\nWe'll be in touch soon to confirm your appointment.\n\nBest regards,\nTouba Hair Braiding\nColumbia SC`
+        auto_reply_message: confirmationMessage,
+        // Alternative: Use reply_to to send confirmation
+        reply_to: formData.email
     };
 
     try {
@@ -252,6 +274,13 @@ async function handleFormSubmit(event) {
         console.log('Submitted Data:', web3formsData);
 
         if (result.success) {
+            // Log auto-reply status if available
+            if (result.auto_reply) {
+                console.log('Auto-reply sent:', result.auto_reply);
+            } else {
+                console.warn('⚠️ Auto-reply may not be enabled. Check Web3Forms dashboard settings.');
+            }
+            
             // Show success message with confirmation info
             showSuccessMessage(formData.email, formData.phone);
             
@@ -449,6 +478,34 @@ window.exportAnalytics = function() {
         console.error('Export error:', e);
     }
 };
+
+// Get current time in Eastern Time
+function getEasternTime() {
+    const now = new Date();
+    // Convert to Eastern Time (handles both EST and EDT automatically)
+    const easternTime = new Date(now.toLocaleString('en-US', { timeZone: 'America/New_York' }));
+    
+    // Format as readable string
+    const formatted = easternTime.toLocaleString('en-US', {
+        timeZone: 'America/New_York',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: true
+    });
+    
+    // Also get ISO string for timestamp
+    const isoString = easternTime.toISOString();
+    
+    return {
+        formatted: formatted,
+        iso: isoString,
+        timezone: 'America/New_York (Eastern Time)'
+    };
+}
 
 // Check if Web3Forms access key is configured
 if (WEB3FORMS_ACCESS_KEY === 'YOUR_ACCESS_KEY') {
